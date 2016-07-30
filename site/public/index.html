@@ -63,25 +63,11 @@
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <script src="./js/ie10-viewport-bug-workaround.js"></script>
 <script src="./js/moment.js"></script>
+<script src="./js/extract-params-from-uri.js"></script>
 <script src="./js/pawel-test-framework.js"></script>
 <script>
 
 $(document).ready(function() {
-    function $_GET(param) {
-    var vars = {};
-    window.location.href.replace( location.hash, '' ).replace( 
-      /[?&]+([^=&]+)=?([^&]*)?/gi,
-      function( m, key, value ) {
-      vars[key] = value !== undefined ? value : '';
-      }
-      );
-
-    if ( param ) {
-    return vars[param] ? vars[param] : null;
-    }
-    return vars;
-    }
-
     function howMuchTimeLeft(startDate, endDate, nowDate) {
       var diffDays = endDate.diff(nowDate, 'days');
       if (diffDays === 0) { return "taking a cut today";}
