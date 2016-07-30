@@ -83,7 +83,7 @@ $(document).ready(function() {
     }
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-      var diffDays = endDate.diff(nowDate, 'days') + 11;
+      var diffDays = endDate.diff(nowDate, 'days');
       if (diffDays === 0) { return "taking a cut today";}
       if (diffDays === 1) { return "taking a cut tomorrow";}
       return "taking a cut in " + diffDays + " days";
