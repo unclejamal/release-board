@@ -82,11 +82,15 @@ $(document).ready(function() {
       return "progress-bar-success";
     };
 
+    function datesForTheContent(startDate, endDate) {
+      var dateTimeFormat = "MMMM Do";
+      return refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat)
+    };
+
     var refStartDate = moment($_GET("refStartDate"));
     var refEndDate = moment($_GET("refEndDate"));
     var nowDate = moment();
-    var dateTimeFormat = "MMMM Do";
-    $(".release-period").text(refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat));
+    $(".release-period").text(datesForTheContent(refStartDate, refEndDate));
     $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
     $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
 
@@ -130,6 +134,11 @@ $(document).ready(function() {
     testSuiteTimeLeft.addTest("Progress bar more than a week before the cut - Tuesday", function() {
         var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T10:00:00.000Z"));
         Assert.assertEquals("progress-bar-success", actual);
+    });
+
+    testSuiteTimeLeft.addTest("Dates for the content", function() {
+        var actual = datesForTheContent(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"));
+        Assert.assertEquals("July 27th - August 10th", actual);
     });
 
 
