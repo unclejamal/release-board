@@ -63,6 +63,7 @@
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <script src="./js/ie10-viewport-bug-workaround.js"></script>
 <script src="./js/moment.js"></script>
+<script src="./js/pawel-test-framework.js"></script>
 <script>
 
 $(document).ready(function() {
@@ -82,7 +83,7 @@ $(document).ready(function() {
     }
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-      var diffDays = endDate.diff(nowDate, 'days');
+      var diffDays = endDate.diff(nowDate, 'days') + 11;
       if (diffDays === 0) { return "taking a cut today";}
       if (diffDays === 1) { return "taking a cut tomorrow";}
       return "taking a cut in " + diffDays + " days";
@@ -98,7 +99,7 @@ $(document).ready(function() {
     var refStartDate = moment($_GET("refStartDate"));
     var refEndDate = moment($_GET("refEndDate"));
     var nowDate = moment();
-    var dateTimeFormat = "dddd, MMMM Do YYYY, h:mm:ss a";
+    var dateTimeFormat = "MMMM Do";
     $(".release-period").text(refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat));
     $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
     $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
@@ -107,55 +108,6 @@ $(document).ready(function() {
     $(".release").text(release);
 
 
-    // TEST FRAMEWORK
-    function Assert() {
-    };
-    Assert.assertEquals = function(expected, actual) {
-      if (expected != actual) { throw "Expected [" + expected + "] but was [" + actual + "]" };
-    };
-
-    function TestSuiteResults() {
-      this.failures = {};
-
-      this.addFailure= function(testName, errorMessage) {
-        this.failures[testName] = errorMessage;
-      };
-
-      this.present = function() {
-        if (Object.keys(this.failures).length != 0) {
-          $(".site-wrapper").css("background-color", "#880e0e");
-          $(".site-wrapper").empty();
-
-          var that = this;
-          Object.keys(this.failures).forEach(function(testName) {
-            var failure = "[FAILURE] " + testName + " : " + that.failures[testName];
-            $(".site-wrapper").append("<h2>" + failure + "</h2>");
-          });
-        }
-      };
-    };
-
-    function TestSuite() {
-      this.tests = {};
-
-      this.addTest = function(testTitle, testFunction) {
-        this.tests[testTitle] = testFunction;
-      };
-
-      this.run = function() {
-        var that = this;
-        var testSuiteResults = new TestSuiteResults();
-        Object.keys(this.tests).forEach(function(testName) {
-            try {
-              that.tests[testName](testSuiteResults);
-            } catch (errorMessage) {
-              testSuiteResults.addFailure(testName, errorMessage);
-            };
-        });
-
-        testSuiteResults.present();
-      }
-    };
 
 
     // TEST SUITE
