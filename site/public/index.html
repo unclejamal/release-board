@@ -84,7 +84,14 @@ $(document).ready(function() {
 
     function datesForTheContent(startDate, endDate) {
       var dateTimeFormat = "MMMM Do";
-      return refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat)
+      return startDate.format(dateTimeFormat) + " - " + endDate.format(dateTimeFormat);
+    };
+
+    function progressBarPercentage(startDate, endDate, nowDate) {
+      var totalMinutes = endDate.diff(startDate, 'minutes');
+      var passedMinutes = nowDate.diff(startDate, 'minutes');
+      var percentage = 100 * passedMinutes/totalMinutes;
+      return percentage.toFixed(2).toString();
     };
 
     var refStartDate = moment($_GET("refStartDate"));
@@ -92,9 +99,8 @@ $(document).ready(function() {
     var nowDate = moment();
     $(".release-period").text(datesForTheContent(refStartDate, refEndDate));
     $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
-    // $(".progress-bar").attr("aria-valuenow", "20");
-    // $(".progress-bar").css("width", "20%");
-    $(".progress-bar").attr("aria-valuemax", "100");
+    $(".progress-bar").attr("aria-valuenow", progressBarPercentage(refStartDate, refEndDate, nowDate));
+    $(".progress-bar").css("width",  "" + progressBarPercentage(refStartDate, refEndDate, nowDate) + "%");
     $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
 
     var release = $_GET("releaseWord") + " " + $_GET("refName");
@@ -142,6 +148,11 @@ $(document).ready(function() {
     testSuiteTimeLeft.addTest("Dates for the content", function() {
         var actual = datesForTheContent(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"));
         Assert.assertEquals("July 27th - August 10th", actual);
+    });
+
+    testSuiteTimeLeft.addTest("Progress bar percentage at the beginning", function() {
+        var actual = progressBarPercentage(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T11:30:59.000Z"));
+        Assert.assertEquals("99.85", actual);
     });
 
 
