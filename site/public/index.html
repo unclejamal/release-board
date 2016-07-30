@@ -42,7 +42,7 @@
         <h1 class="release cover-heading">Release 45</h1>
         <h2 class="release-period cover-heading">10/10/2016 - 24/10/2016</h2>
         <div class="release-bar progress">
-          <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
+          <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
             <span class="progress-bar-text-inside">1 day left</span>
           </div>
         </div>
@@ -82,21 +82,26 @@ $(document).ready(function() {
     }
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-       if (nowDate.isSame(endDate, 'day')) {
-         return "the cut is today";
-       } else {
-         return "the cut is tomorrow";
-       }
+      var diffDays = endDate.diff(nowDate, 'days');
+      if (diffDays === 0) { return "taking a cut today";}
+      if (diffDays === 1) { return "taking a cut tomorrow";}
+      return "taking a cut in " + diffDays + " days";
     };
 
-
+    function progressBarStyle(startDate, endDate, nowDate) {
+      var diffDays = endDate.diff(nowDate, 'days');
+      if (diffDays <= 2) { return "progress-bar-danger";}
+      if (diffDays <= 7) { return "progress-bar-warning";}
+      return "progress-bar-success";
+    };
 
     var refStartDate = moment($_GET("refStartDate"));
     var refEndDate = moment($_GET("refEndDate"));
     var nowDate = moment();
     var dateTimeFormat = "dddd, MMMM Do YYYY, h:mm:ss a";
-    $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
     $(".release-period").text(refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat));
+    $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
+    $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
 
     var release = $_GET("releaseWord") + " " + $_GET("refName");
     $(".release").text(release);
@@ -155,14 +160,40 @@ $(document).ready(function() {
 
     // TEST SUITE
     var testSuiteTimeLeft = new TestSuite();
-    testSuiteTimeLeft.addTest("on the day of the cut", function() {
-        var actual = howMuchTimeLeft("2016-07-27T12:00:00.000Z", "2016-08-10T12:00:00.000Z", moment("2016-08-10T10:00:00.000Z"));
-        Assert.assertEquals("the cut is today", actual);
+    testSuiteTimeLeft.addTest("Time left on the day of the cut - Wednesday", function() {
+        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T10:00:00.000Z"));
+        Assert.assertEquals("taking a cut today", actual);
     });
-    testSuiteTimeLeft.addTest("cut", function() {
-        var actual = howMuchTimeLeft("2016-07-27T12:00:00.000Z", "2016-08-10T12:00:00.000Z", moment("2016-08-10T10:00:00.000Z"));
-        Assert.assertEquals("the cut is today", actual);
+    testSuiteTimeLeft.addTest("Time left on the day before cut - Tuesday", function() {
+        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-09T10:00:00.000Z"));
+        Assert.assertEquals("taking a cut tomorrow", actual);
     });
+    testSuiteTimeLeft.addTest("Time left two days before cut - Monday", function() {
+        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-08T10:00:00.000Z"));
+        Assert.assertEquals("taking a cut in 2 days", actual);
+    });
+
+    testSuiteTimeLeft.addTest("Progress bar on the day of the cut - Wednesday", function() {
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T10:00:00.000Z"));
+        Assert.assertEquals("progress-bar-danger", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar during the week of the cut - Monday", function() {
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-08T10:00:00.000Z"));
+        Assert.assertEquals("progress-bar-danger", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar during the middle week - Sunday", function() {
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-07T10:00:00.000Z"));
+        Assert.assertEquals("progress-bar-warning", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar a week before the cut - Wednesday", function() {
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-03T10:00:00.000Z"));
+        Assert.assertEquals("progress-bar-warning", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar more than a week before the cut - Tuesday", function() {
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T10:00:00.000Z"));
+        Assert.assertEquals("progress-bar-success", actual);
+    });
+
 
     testSuiteTimeLeft.run();
 });
