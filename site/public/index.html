@@ -62,7 +62,9 @@
 <script src="./js/bootstrap.min.js"></script>
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <script src="./js/ie10-viewport-bug-workaround.js"></script>
+<script src="./js/moment.js"></script>
 <script>
+
 $(document).ready(function() {
     function $_GET(param) {
     var vars = {};
@@ -80,17 +82,21 @@ $(document).ready(function() {
     }
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-    return "not too much";
+       if (nowDate.isSame(endDate, 'day')) {
+         return "the cut is today";
+       } else {
+         return "the cut is tomorrow";
+       }
     };
 
 
 
-    var refStartDate = new Date($_GET("refStartDate"));
-    var refEndDate = new Date($_GET("refEndDate"));
-    var nowDate = new Date("2016-08-30T10:00:00.000Z");
-
+    var refStartDate = moment($_GET("refStartDate"));
+    var refEndDate = moment($_GET("refEndDate"));
+    var nowDate = moment();
+    var dateTimeFormat = "dddd, MMMM Do YYYY, h:mm:ss a";
     $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
-    $(".release-period").text(refStartDate + " - " + refEndDate);
+    $(".release-period").text(refStartDate.format(dateTimeFormat) + " - " + refEndDate.format(dateTimeFormat));
 
     var release = $_GET("releaseWord") + " " + $_GET("refName");
     $(".release").text(release);
@@ -143,16 +149,20 @@ $(document).ready(function() {
         });
 
         testSuiteResults.present();
-      };
+      }
     };
 
 
     // TEST SUITE
     var testSuiteTimeLeft = new TestSuite();
-    testSuiteTimeLeft.addTest("two hours left", function() {
-        var actual = howMuchTimeLeft("2016-07-27T12:00:00.000Z", "2016-08-10T12:00:00.000Z", "2016-08-10T10:00:00.000Z");
-        Assert.assertEquals("Two hours left", actual);
-        });
+    testSuiteTimeLeft.addTest("on the day of the cut", function() {
+        var actual = howMuchTimeLeft("2016-07-27T12:00:00.000Z", "2016-08-10T12:00:00.000Z", moment("2016-08-10T10:00:00.000Z"));
+        Assert.assertEquals("the cut is today", actual);
+    });
+    testSuiteTimeLeft.addTest("cut", function() {
+        var actual = howMuchTimeLeft("2016-07-27T12:00:00.000Z", "2016-08-10T12:00:00.000Z", moment("2016-08-10T10:00:00.000Z"));
+        Assert.assertEquals("the cut is today", actual);
+    });
 
     testSuiteTimeLeft.run();
 });
