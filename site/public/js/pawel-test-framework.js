@@ -2,7 +2,11 @@
 function Assert() {
 };
 Assert.assertEquals = function(expected, actual) {
-  if (expected != actual) { throw "Expected [" + expected + "] but was [" + actual + "]" };
+  if (expected != actual) {
+    var expectedJson = JSON.stringify(expected);
+    var actualJson = JSON.stringify(actual);
+    throw "Expected [" + expectedJson + "] but was [" + actualJson + "]"
+  };
 };
 
 function TestSuiteResults() {
