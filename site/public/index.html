@@ -75,11 +75,11 @@ $(document).ready(function() {
       if (diffDays === 1) { return "taking a cut tomorrow";}
       return "taking a cut in " + diffDays + " days";
     };
+      if (diffDays <= 7) { return "progress-bar-warning";}
 
     function progressBarStyle(startDate, endDate, nowDate) {
       var diffDays = endDate.diff(nowDate, 'days');
-      if (diffDays <= 2) { return "progress-bar-danger";}
-      if (diffDays <= 7) { return "progress-bar-warning";}
+      if (diffDays <= 2) { return "progress-bar-warning";}
       return "progress-bar-success";
     };
 
@@ -135,22 +135,18 @@ $(document).ready(function() {
 
     testSuiteTimeLeft.addTest("Progress bar on the day of the cut - Wednesday", function() {
         var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T10:00:00.000Z"));
-        Assert.assertEquals("progress-bar-danger", actual);
+        Assert.assertEquals("progress-bar-warning", actual);
     });
     testSuiteTimeLeft.addTest("Progress bar during the week of the cut - Monday", function() {
         var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-08T10:00:00.000Z"));
-        Assert.assertEquals("progress-bar-danger", actual);
+        Assert.assertEquals("progress-bar-warning", actual);
     });
     testSuiteTimeLeft.addTest("Progress bar during the middle week - Sunday", function() {
         var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-07T10:00:00.000Z"));
-        Assert.assertEquals("progress-bar-warning", actual);
-    });
-    testSuiteTimeLeft.addTest("Progress bar a week before the cut - Wednesday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-03T10:00:00.000Z"));
-        Assert.assertEquals("progress-bar-warning", actual);
+        Assert.assertEquals("progress-bar-success", actual);
     });
     testSuiteTimeLeft.addTest("Progress bar more than a week before the cut - Tuesday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T10:00:00.000Z"));
+        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-27T13:00:00.000Z"));
         Assert.assertEquals("progress-bar-success", actual);
     });
 
