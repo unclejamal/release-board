@@ -99,18 +99,22 @@ $(document).ready(function() {
       return percentage.toFixed(2).toString();
     };
 
-    var refStartDate = moment($_GET("refStartDate"));
-    var refEndDate = moment($_GET("refEndDate"));
-    var nowDate = moment();
-    $(".release-period").text(datesForTheContent(refStartDate, refEndDate));
-    $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, nowDate));
-    $(".progress-bar").attr("aria-valuenow", progressBarPercentage(refStartDate, refEndDate, nowDate));
-    $(".progress-bar").css("width",  "" + progressBarPercentage(refStartDate, refEndDate, nowDate) + "%");
-    $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
+    var paramCutTime = $_GET("cutTime");
+    var paramRefStartDate = $_GET("refStartDate");
+    var paramRefEndDate = $_GET("refEndDate");
+    var paramNowDate = moment();
+    var paramReleaseWord = $_GET("releaseWord");
+    var paramRefName = $_GET("refName");
 
-    var releaseWord = $_GET("releaseWord");
-    var refName = $_GET("refName");
-    $(".release").text(fullReleaseName(releaseWord, refName));
+    var refStartDate = moment(paramRefStartDate + "T" + paramCutTime + "00:00.000Z");
+    var refEndDate = moment(paramRefEndDate + "T" + paramCutTime + "00:00.000Z");
+
+    $(".release-period").text(datesForTheContent(refStartDate, refEndDate));
+    $(".progress-bar-text-inside").text(howMuchTimeLeft(refStartDate, refEndDate, paramNowDate));
+    $(".progress-bar").attr("aria-valuenow", progressBarPercentage(refStartDate, refEndDate, paramNowDate));
+    $(".progress-bar").css("width",  "" + progressBarPercentage(refStartDate, refEndDate, paramNowDate) + "%");
+    $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, paramNowDate));
+    $(".release").text(fullReleaseName(paramReleaseWord, paramRefName));
 
 
 
