@@ -81,7 +81,6 @@ $(document).ready(function() {
       if (diffDays <= 2) { return "progress-bar-danger";}
       if (diffDays <= 7) { return "progress-bar-warning";}
       return "progress-bar-success";
-    $_GET("refName");
     };
 
     function datesForTheContent(startDate, endDate) {
@@ -111,7 +110,7 @@ $(document).ready(function() {
 
     var releaseWord = $_GET("releaseWord");
     var refName = $_GET("refName");
-    $(".release").text(releaseWord, refName);
+    $(".release").text(fullReleaseName(releaseWord, refName));
 
 
 
