@@ -81,11 +81,16 @@ $(document).ready(function() {
       if (diffDays <= 2) { return "progress-bar-danger";}
       if (diffDays <= 7) { return "progress-bar-warning";}
       return "progress-bar-success";
+    $_GET("refName");
     };
 
     function datesForTheContent(startDate, endDate) {
       var dateTimeFormat = "MMMM Do";
       return startDate.format(dateTimeFormat) + " - " + endDate.format(dateTimeFormat);
+    };
+
+    function fullReleaseName(releaseWord, refName) {
+      return releaseWord + " " + refName;
     };
 
     function progressBarPercentage(startDate, endDate, nowDate) {
@@ -104,9 +109,9 @@ $(document).ready(function() {
     $(".progress-bar").css("width",  "" + progressBarPercentage(refStartDate, refEndDate, nowDate) + "%");
     $(".progress-bar").addClass(progressBarStyle(refStartDate, refEndDate, nowDate));
 
-    var release = $_GET("releaseWord") + " " + $_GET("refName");
-    $(".release").text(release);
-
+    var releaseWord = $_GET("releaseWord");
+    var refName = $_GET("refName");
+    $(".release").text(releaseWord, refName);
 
 
 
