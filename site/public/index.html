@@ -69,15 +69,17 @@
 <script>
 
 $(document).ready(function() {
-    function calculateActualIteration(refStartDate, refEndDate, nowDate) {
+    function calculateActualIteration(refName, refStartDate, refEndDate, nowDate) {
       var totalMinutes = refEndDate.diff(refStartDate, 'minutes');
       var actualStartDate = refStartDate;
       var actualEndDate = refEndDate;
+      var actualName = refName;
 
       if (nowDate.isAfter(actualEndDate)) {
         while (nowDate.isAfter(actualEndDate)) {
           actualStartDate.add(totalMinutes, 'minutes');
           actualEndDate.add(totalMinutes, 'minutes');
+          actualName = actualName + 1;
         }
       }
 
@@ -85,10 +87,11 @@ $(document).ready(function() {
         while (nowDate.isBefore(actualStartDate)) {
           actualStartDate.subtract(totalMinutes, 'minutes');
           actualEndDate.subtract(totalMinutes, 'minutes');
+          actualName = actualName - 1;
         }
       }
 
-      return {startDate: actualStartDate, endDate: actualEndDate};
+      return {name: actualName, startDate: actualStartDate, endDate: actualEndDate};
     };
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
@@ -129,15 +132,16 @@ $(document).ready(function() {
 
     var refStartDate = moment(paramRefStartDate + "T" + paramCutTime + "00:00.000Z");
     var refEndDate = moment(paramRefEndDate + "T" + paramCutTime + "00:00.000Z");
+    var refName = parseInt(paramRefName);
 
-    var iteration = calculateActualIteration(refStartDate, refEndDate, paramNowDate);
+    var iteration = calculateActualIteration(refName, refStartDate, refEndDate, paramNowDate);
 
     $(".release-period").text(datesForTheContent(iteration.startDate, iteration.endDate));
     $(".progress-bar-text-inside").text(howMuchTimeLeft(iteration.startDate, iteration.endDate, paramNowDate));
     $(".progress-bar").attr("aria-valuenow", progressBarPercentage(iteration.startDate, iteration.endDate, paramNowDate));
     $(".progress-bar").css("width",  "" + progressBarPercentage(iteration.startDate, iteration.endDate, paramNowDate) + "%");
     $(".progress-bar").addClass(progressBarStyle(iteration.startDate, iteration.endDate, paramNowDate));
-    $(".release").text(fullReleaseName(paramReleaseWord, paramRefName));
+    $(".release").text(fullReleaseName(paramReleaseWord, iteration.name));
 
 
 
@@ -184,24 +188,24 @@ $(document).ready(function() {
     });
 
     testSuiteTimeLeft.addTest("Calculate iteration dates - still in the reference period", function() {
-        var actual = calculateActualIteration(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T12:00:00.000Z"));
-        Assert.assertJsonEquals({startDate: moment("2016-07-27T12:00:00.000Z"), endDate: moment("2016-08-10T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T12:00:00.000Z"));
+        Assert.assertJsonEquals({name: 45, startDate: moment("2016-07-27T12:00:00.000Z"), endDate: moment("2016-08-10T12:00:00.000Z")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - just past the reference period", function() {
-        var actual = calculateActualIteration(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T12:00:00.001Z"));
-        Assert.assertJsonEquals({startDate: moment("2016-08-10T12:00:00.000Z"), endDate: moment("2016-08-24T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T12:00:00.001Z"));
+        Assert.assertJsonEquals({name: 46, startDate: moment("2016-08-10T12:00:00.000Z"), endDate: moment("2016-08-24T12:00:00.000Z")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - 2 iterations ahead", function() {
-        var actual = calculateActualIteration(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-24T12:00:00.001Z"));
-        Assert.assertJsonEquals({startDate: moment("2016-08-24T12:00:00.000Z"), endDate: moment("2016-09-07T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-24T12:00:00.001Z"));
+        Assert.assertJsonEquals({name: 47, startDate: moment("2016-08-24T12:00:00.000Z"), endDate: moment("2016-09-07T12:00:00.000Z")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - just before the reference period", function() {
-        var actual = calculateActualIteration(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-27T11:59:59.999Z"));
-        Assert.assertJsonEquals({startDate: moment("2016-07-13T12:00:00.000Z"), endDate: moment("2016-07-27T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-27T11:59:59.999Z"));
+        Assert.assertJsonEquals({name: 44, startDate: moment("2016-07-13T12:00:00.000Z"), endDate: moment("2016-07-27T12:00:00.000Z")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - 2 iterations before", function() {
-        var actual = calculateActualIteration(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-13T11:59:59.999Z"));
-        Assert.assertJsonEquals({startDate: moment("2016-06-29T12:00:00.000Z"), endDate: moment("2016-07-13T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-13T11:59:59.999Z"));
+        Assert.assertJsonEquals({name: 43, startDate: moment("2016-06-29T12:00:00.000Z"), endDate: moment("2016-07-13T12:00:00.000Z")}, actual);
     });
 
 
