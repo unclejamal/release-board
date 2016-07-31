@@ -69,6 +69,10 @@
 <script>
 
 $(document).ready(function() {
+    function calculateIterationDates(refStartDate, refEndDate, nowDate) {
+      return {startDate: refStartDate, endDate: refEndDate};
+    };
+
     function howMuchTimeLeft(startDate, endDate, nowDate) {
       var diffDays = endDate.diff(nowDate, 'days');
       if (diffDays === 0) { return "taking a cut today";}
@@ -157,6 +161,11 @@ $(document).ready(function() {
     testSuiteTimeLeft.addTest("Progress bar percentage at the beginning", function() {
         var actual = progressBarPercentage(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T11:30:59.000Z"));
         Assert.assertEquals("99.85", actual);
+    });
+
+    testSuiteTimeLeft.addTest("Calculate iteration dates - still in the reference period", function() {
+        var actual = calculateIterationDates(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T12:00:00.000Z"));
+        Assert.assertJsonEquals({startDate: moment("2016-07-27T12:00:00.000Z"), endDate: moment("2016-08-10T12:00:00.000Z")}, actual);
     });
 
 
