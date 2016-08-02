@@ -95,14 +95,16 @@ $(document).ready(function() {
     };
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-      var diffDays = endDate.diff(nowDate, 'days');
+      var nowDateWithoutTime = nowDate.startOf('day');
+      var diffDays = endDate.diff(nowDateWithoutTime, 'days');
       if (diffDays === 0) { return "taking a cut today";}
       if (diffDays === 1) { return "taking a cut tomorrow";}
       return "taking a cut in " + diffDays + " days";
     };
 
     function progressBarStyle(startDate, endDate, nowDate) {
-      var diffDays = endDate.diff(nowDate, 'days');
+      var nowDateWithoutTime = nowDate.startOf('day');
+      var diffDays = endDate.diff(nowDateWithoutTime, 'days');
       if (diffDays <= 2) { return "progress-bar-warning";}
       return "progress-bar-success";
     };
@@ -123,6 +125,10 @@ $(document).ready(function() {
       return percentage.toFixed(2).toString();
     };
 
+    function createMoment(paramRefStartDate, paramCutTime) {
+      return moment(paramRefStartDate + " " + paramCutTime, "YYYY-MM-DD HH:mm");
+    };
+
     var paramCutTime = $_GET("cutTime");
     var paramRefStartDate = $_GET("refStartDate");
     var paramRefEndDate = $_GET("refEndDate");
@@ -130,8 +136,8 @@ $(document).ready(function() {
     var paramReleaseWord = $_GET("releaseWord");
     var paramRefName = $_GET("refName");
 
-    var refStartDate = moment(paramRefStartDate + "T" + paramCutTime + "00:00.000Z");
-    var refEndDate = moment(paramRefEndDate + "T" + paramCutTime + "00:00.000Z");
+    var refStartDate = createMoment(paramRefStartDate, paramCutTime);
+    var refEndDate = createMoment(paramRefEndDate, paramCutTime);
     var refName = parseInt(paramRefName);
 
     var iteration = calculateActualIteration(refName, refStartDate, refEndDate, paramNowDate);
@@ -148,64 +154,80 @@ $(document).ready(function() {
     // TEST SUITE
     var testSuiteTimeLeft = new TestSuite();
     testSuiteTimeLeft.addTest("Time left on the day of the cut - Wednesday", function() {
-        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T10:00:00.000Z"));
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "10:00"));
         Assert.assertEquals("taking a cut today", actual);
     });
     testSuiteTimeLeft.addTest("Time left on the day before cut - Tuesday", function() {
-        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-09T10:00:00.000Z"));
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-09", "10:00"));
         Assert.assertEquals("taking a cut tomorrow", actual);
     });
-    testSuiteTimeLeft.addTest("Time left two days before cut - Monday", function() {
-        var actual = howMuchTimeLeft(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-08T10:00:00.000Z"));
+    testSuiteTimeLeft.addTest("Time left two days before cut - Monday pm", function() {
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-08", "14:00"));
         Assert.assertEquals("taking a cut in 2 days", actual);
+    });
+    testSuiteTimeLeft.addTest("Time left two days before cut - Monday am", function() {
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-08", "10:00"));
+        Assert.assertEquals("taking a cut in 2 days", actual);
+    });
+    testSuiteTimeLeft.addTest("Time left two days before cut - Sunday pm", function() {
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-07", "23:59"));
+        Assert.assertEquals("taking a cut in 3 days", actual);
+    });
+    testSuiteTimeLeft.addTest("Time left two days before cut - Sunday am", function() {
+        var actual = howMuchTimeLeft(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-07", "10:00"));
+        Assert.assertEquals("taking a cut in 3 days", actual);
     });
 
     testSuiteTimeLeft.addTest("Progress bar on the day of the cut - Wednesday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T10:00:00.000Z"));
+        var actual = progressBarStyle(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "10:00"));
         Assert.assertEquals("progress-bar-warning", actual);
     });
-    testSuiteTimeLeft.addTest("Progress bar during the week of the cut - Monday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-08T10:00:00.000Z"));
+    testSuiteTimeLeft.addTest("Progress bar during the week of the cut - Monday am", function() {
+        var actual = progressBarStyle(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-08", "10:00"));
         Assert.assertEquals("progress-bar-warning", actual);
     });
-    testSuiteTimeLeft.addTest("Progress bar during the middle week - Sunday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-07T10:00:00.000Z"));
+    testSuiteTimeLeft.addTest("Progress bar during the week of the cut - Monday pm", function() {
+        var actual = progressBarStyle(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-08", "14:00"));
+        Assert.assertEquals("progress-bar-warning", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar during the middle week - Sunday pm", function() {
+        var actual = progressBarStyle(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-07", "23:00"));
         Assert.assertEquals("progress-bar-success", actual);
     });
     testSuiteTimeLeft.addTest("Progress bar more than a week before the cut - Tuesday", function() {
-        var actual = progressBarStyle(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-27T13:00:00.000Z"));
+        var actual = progressBarStyle(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-07", "13:00"));
         Assert.assertEquals("progress-bar-success", actual);
     });
 
     testSuiteTimeLeft.addTest("Dates for the content", function() {
-        var actual = datesForTheContent(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"));
+        var actual = datesForTheContent(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"));
         Assert.assertEquals("July 27th - August 10th", actual);
     });
 
     testSuiteTimeLeft.addTest("Progress bar percentage at the beginning", function() {
-        var actual = progressBarPercentage(moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T11:30:59.000Z"));
+        var actual = progressBarPercentage(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "11:30:59"));
         Assert.assertEquals("99.85", actual);
     });
 
     testSuiteTimeLeft.addTest("Calculate iteration dates - still in the reference period", function() {
-        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-02T12:00:00.000Z"));
-        Assert.assertJsonEquals({name: 45, startDate: moment("2016-07-27T12:00:00.000Z"), endDate: moment("2016-08-10T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-02", "12:00"));
+        Assert.assertJsonEquals({name: 45, startDate: createMoment("2016-07-27", "12:00"), endDate: createMoment("2016-08-10", "12:00")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - just past the reference period", function() {
-        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-10T12:00:00.001Z"));
-        Assert.assertJsonEquals({name: 46, startDate: moment("2016-08-10T12:00:00.000Z"), endDate: moment("2016-08-24T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "12:01"));
+        Assert.assertJsonEquals({name: 46, startDate: createMoment("2016-08-10", "12:00"), endDate: createMoment("2016-08-24", "12:00")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - 2 iterations ahead", function() {
-        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-08-24T12:00:00.001Z"));
-        Assert.assertJsonEquals({name: 47, startDate: moment("2016-08-24T12:00:00.000Z"), endDate: moment("2016-09-07T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-24", "12:01"));
+        Assert.assertJsonEquals({name: 47, startDate: createMoment("2016-08-24", "12:00"), endDate: createMoment("2016-09-07", "12:00")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - just before the reference period", function() {
-        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-27T11:59:59.999Z"));
-        Assert.assertJsonEquals({name: 44, startDate: moment("2016-07-13T12:00:00.000Z"), endDate: moment("2016-07-27T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-07-27", "11:59"));
+        Assert.assertJsonEquals({name: 44, startDate: createMoment("2016-07-13", "12:00"), endDate: createMoment("2016-07-27", "12:00")}, actual);
     });
     testSuiteTimeLeft.addTest("Calculate iteration dates - 2 iterations before", function() {
-        var actual = calculateActualIteration(45, moment("2016-07-27T12:00:00.000Z"), moment("2016-08-10T12:00:00.000Z"), moment("2016-07-13T11:59:59.999Z"));
-        Assert.assertJsonEquals({name: 43, startDate: moment("2016-06-29T12:00:00.000Z"), endDate: moment("2016-07-13T12:00:00.000Z")}, actual);
+        var actual = calculateActualIteration(45, createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-07-13", "11:59"));
+        Assert.assertJsonEquals({name: 43, startDate: createMoment("2016-06-29", "12:00"), endDate: createMoment("2016-07-13", "12:00")}, actual);
     });
 
 
