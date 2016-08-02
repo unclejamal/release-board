@@ -95,7 +95,7 @@ $(document).ready(function() {
     };
 
     function howMuchTimeLeft(startDate, endDate, nowDate) {
-      var nowDateWithoutTime = nowDate.startOf('day');
+      var nowDateWithoutTime = nowDate.clone().startOf('day');
       var diffDays = endDate.diff(nowDateWithoutTime, 'days');
       if (diffDays === 0) { return "taking a cut today";}
       if (diffDays === 1) { return "taking a cut tomorrow";}
@@ -103,7 +103,7 @@ $(document).ready(function() {
     };
 
     function progressBarStyle(startDate, endDate, nowDate) {
-      var nowDateWithoutTime = nowDate.startOf('day');
+      var nowDateWithoutTime = nowDate.clone().startOf('day');
       var diffDays = endDate.diff(nowDateWithoutTime, 'days');
       if (diffDays <= 2) { return "progress-bar-warning";}
       return "progress-bar-success";
@@ -204,9 +204,13 @@ $(document).ready(function() {
         Assert.assertEquals("July 27th - August 10th", actual);
     });
 
-    testSuiteTimeLeft.addTest("Progress bar percentage at the beginning", function() {
-        var actual = progressBarPercentage(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "11:30:59"));
+    testSuiteTimeLeft.addTest("Progress bar percentage at the end", function() {
+        var actual = progressBarPercentage(createMoment("2016-07-27", "12:00"), createMoment("2016-08-10", "12:00"), createMoment("2016-08-10", "11:30"));
         Assert.assertEquals("99.85", actual);
+    });
+    testSuiteTimeLeft.addTest("Progress bar percentage at the end 2", function() {
+        var actual = progressBarPercentage(createMoment("2016-07-27", "22:00"), createMoment("2016-08-02", "22:00"), createMoment("2016-08-02", "21:55"));
+        Assert.assertEquals("99.94", actual);
     });
 
     testSuiteTimeLeft.addTest("Calculate iteration dates - still in the reference period", function() {
